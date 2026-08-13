@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
   "dev": "tsx examples/demo-agent/index.ts",
-  "mcp": "tsx mcp-server/index.ts",
+  "demo:payment": "tsx examples/demo-agent/payment-demo.ts",
   "build": "tsc",
   "typecheck": "tsc --noEmit",
   "test:payment-types": "tsx tests/payment-types.ts"
