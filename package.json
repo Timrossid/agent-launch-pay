@@ -1,0 +1,28 @@
+{
+  "name": "agent-launch-pay",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+  "dev": "tsx examples/demo-agent/index.ts",
+  "mcp": "tsx mcp-server/index.ts",
+  "build": "tsc",
+  "typecheck": "tsc --noEmit",
+  "test:payment-types": "tsx tests/payment-types.ts"
+},
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "@modelcontextprotocol/server": "^2.0.0",
+    "dotenv": "^17.4.2",
+    "viem": "^2.55.15",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@types/node": "^26.2.0",
+    "tsx": "^4.23.12",
+    "typescript": "^7.0.2"
+  }
+}
