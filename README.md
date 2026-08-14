@@ -186,6 +186,18 @@ The server communicates over standard input/output and can be tested with MCP In
 
 ## Current Status
 
+### Testnet Transaction
+
+The first end-to-end payment was successfully executed on BSC Testnet.
+
+- Network: BSC Testnet
+- Chain ID: 97
+- Amount: 0.00001 tBNB
+- Status: Success
+- Block: 125001606
+- Gas used: 21,000
+- Transaction: https://testnet.bscscan.com/tx/0x41e8b79ec9c57bad786f57abc137006472293a25e0bb3c2a94bcde9f5b74ddc2
+
 ### Working
 
 - TypeScript SDK
