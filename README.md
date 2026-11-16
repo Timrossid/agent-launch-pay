@@ -1,137 +1,106 @@
-# agent-launch-pay
+# Agent Launch Pay
 
-Open-source payment infrastructure for AI agents on BNB Chain.
+A TypeScript SDK and Model Context Protocol (MCP) server for giving AI-agent applications a small set of native-payment tools on **BNB Smart Chain Testnet**.
 
-`agent-launch-pay` provides a reusable TypeScript SDK and MCP server that allow AI agents and agent applications to:
+> **Status: Testnet prototype.** The current implementation supports native tBNB on BSC Testnet (chain ID 97). It is not a production payment service and should only be used with testnet funds.
 
-- Check BSC Testnet wallet balances
-- Send native tBNB payments
-- Verify transaction confirmations
-- Access payment functionality through MCP tools
+## What it does
 
-The project is being developed for the Agent Launch ecosystem and is designed to make blockchain payments easier to integrate into autonomous agents.
+Agent Launch Pay exposes three payment-related capabilities:
+
+- Read the native tBNB balance of a BSC Testnet address.
+- Send a native tBNB transaction using a configured signing wallet.
+- Wait for a transaction to confirm and return its details and explorer link.
+
+The same core functionality is available through a TypeScript SDK and an MCP server that communicates over standard input/output (stdio).
 
 ## Architecture
 
-```text
-AI Agent
-    |
-    v
-MCP Server
-    |
-    +-------------------------+
-    |                         |
-    v                         v
-get_wallet_balance       send_payment
-    |                         |
-    |                         v
-    |                    BSC Testnet
-    |                         |
-    +------------+------------+
-                 |
-                 v
-          verify_payment
+```mermaid
+flowchart TD
+    AGENT[AI agent or host application] --> MCP[MCP server over stdio]
+    MCP --> TOOLS[Three MCP tools]
+    APP[TypeScript application] --> SDK[TypeScript SDK]
+    TOOLS --> SDK
+    SDK --> RPC[BNB Chain Testnet RPC]
+    RPC --> EXPLORER[BscScan Testnet]
 ```
 
-## MCP Tools
+## MCP tools
 
-### `get_wallet_balance`
+| Tool | Purpose | Main input |
+|---|---|---|
+| `get_wallet_balance` | Reads a wallet's native tBNB balance | `address` |
+| `send_payment` | Sends native tBNB from the configured agent wallet | `to`, `amount` |
+| `verify_payment` | Waits for confirmation and returns transaction information | `hash` |
 
-Returns the native tBNB balance for a BSC Testnet address.
-
-Input:
+Example tool inputs:
 
 ```json
-{
-  "address": "0x..."
-}
+{ "address": "0x..." }
 ```
-
-### `send_payment`
-
-Sends native tBNB on BSC Testnet.
-
-Input:
 
 ```json
-{
-  "to": "0x...",
-  "amount": "0.0001"
-}
+{ "to": "0x...", "amount": "0.0001" }
 ```
-
-This tool requires a configured signing wallet.
-
-### `verify_payment`
-
-Waits for a BSC Testnet transaction to confirm and returns transaction details and a BSCScan Testnet explorer link.
-
-Input:
 
 ```json
-{
-  "hash": "0x..."
-}
+{ "hash": "0x..." }
 ```
 
-## Project Structure
+The `send_payment` tool requires a configured private key. Treat that key as a secret and use a dedicated, test-funded wallet.
+
+## Technology
+
+- TypeScript
+- Node.js and npm
+- viem for EVM wallet and RPC operations
+- Model Context Protocol SDK for the stdio server
+- Zod for input validation
+- BNB Smart Chain Testnet (chain ID 97)
+
+## Project structure
 
 ```text
 agent-launch-pay/
-|
 ├── sdk/
 │   ├── wallet/
-│   │   ├── bsc.ts
-│   │   └── balance.ts
 │   ├── payments/
-│   │   └── send.ts
 │   └── verification/
-│       └── transaction.ts
-|
 ├── mcp-server/
 │   └── index.ts
-|
 ├── examples/
 │   └── demo-agent/
-│       ├── index.ts
-│       └── payment-demo.ts
-|
 ├── tests/
-│   └── payment-types.ts
-|
 ├── .env.example
-├── .gitignore
 ├── package.json
-├── package-lock.json
-├── tsconfig.json
-└── README.md
+└── tsconfig.json
 ```
 
 ## Requirements
 
-- Node.js 20+
+- Node.js 20 or later
 - npm
-- A BSC Testnet RPC endpoint
-- A BSC Testnet wallet for payment testing
+- Access to a BSC Testnet RPC endpoint
+- A BSC Testnet wallet funded with tBNB for payment testing
 
 ## Installation
-
-Clone the repository:
 
 ```bash
 git clone https://github.com/Timrossid/agent-launch-pay.git
 cd agent-launch-pay
-```
-
-Install dependencies:
-
-```bash
 npm install
 ```
 
-## Environment Configuration
+## Configuration
 
-Create a `.env` file:
+Create a local environment file from the example:
+
+```bash
+cp .env.example .env
+```
+
+Configure the following values:
 
 ```env
 BSC_TESTNET_RPC_URL=
@@ -140,125 +109,73 @@ DEMO_WALLET_ADDRESS=
 DEMO_RECIPIENT_ADDRESS=
 ```
 
-Never commit `.env` or a private key to GitHub.
+Use a dedicated test wallet. Never commit `.env`, private keys, seed phrases, or funded-wallet credentials.
 
-## Development
+## Run the project
 
-Type-check the project:
+Type-check and build:
 
 ```bash
 npm run typecheck
-```
-
-Build the project:
-
-```bash
 npm run build
 ```
 
-Run the balance demo:
+Run the balance example:
 
 ```bash
 npm run dev
 ```
 
-Run the payment demo once the wallet has tBNB:
+Run the payment example after configuring and funding the test wallet:
 
 ```bash
 npm run demo:payment
 ```
 
-## MCP Server
+### Start the MCP server
 
-Start the MCP server with:
+Run the server directly with:
 
 ```bash
-npm run mcp
+npx tsx mcp-server/index.ts
 ```
 
-The MCP server exposes:
+The server uses stdio. Configure the command and working directory in your MCP host's server configuration. The repository does not define an `npm run mcp` script.
 
-- `get_wallet_balance`
-- `send_payment`
-- `verify_payment`
+## Testnet transaction evidence
 
-The server communicates over standard input/output and can be tested with MCP Inspector.
+A successful native tBNB transfer was recorded on BSC Testnet:
 
-## Current Status
+| Field | Value |
+|---|---|
+| Network | BNB Smart Chain Testnet |
+| Chain ID | 97 |
+| Amount | 0.00001 tBNB |
+| Status | Successful |
+| Block | 125001606 |
+| Gas used | 21,000 |
 
-### Testnet Transaction
+[View the transaction on BscScan Testnet](https://testnet.bscscan.com/tx/0x41e8b79ec9c57bad786f57abc137006472293a25e0bb3c2a94bcde9f5b74ddc2).
 
-The first end-to-end payment was successfully executed on BSC Testnet.
+This transaction is evidence of a testnet transfer. It does not imply support for mainnet assets or production payment processing.
 
-- Network: BSC Testnet
-- Chain ID: 97
-- Amount: 0.00001 tBNB
-- Status: Success
-- Block: 125001606
-- Gas used: 21,000
-- Transaction: https://testnet.bscscan.com/tx/0x41e8b79ec9c57bad786f57abc137006472293a25e0bb3c2a94bcde9f5b74ddc2
+## Current scope and limitations
 
-### Working
+The repository currently focuses on native tBNB transfers and transaction verification on BSC Testnet. It does not claim to provide:
 
-- TypeScript SDK
-- BSC Testnet RPC connection
-- Wallet balance lookup
-- Payment request validation
-- Native tBNB payment implementation
-- Transaction verification
-- MCP server
-- MCP Inspector integration
-- Demo agent
-- End-to-end payment demo
+- ERC-20 token payments.
+- Multi-chain payment routing.
+- Smart-contract escrow or programmable payment conditions.
+- Production custody, key management, spending limits, or approval policies.
+- Fiat conversion, banking integrations, or compliance screening.
+- A hosted web dashboard or public hosted demo.
 
-### In Progress
+These would require additional implementation, testing, and security review.
 
-- First funded BSC Testnet transaction
-- Public transaction verification
-- MCP integration examples
-- Integration documentation
-- Additional automated tests
+## Contributing
 
-## Roadmap
-
-### Phase 1: Core SDK
-
-- [x] BSC Testnet connection
-- [x] Wallet balance lookup
-- [x] Payment function
-- [x] Transaction verification
-
-### Phase 2: MCP
-
-- [x] MCP server
-- [x] Balance tool
-- [x] Payment tool
-- [x] Verification tool
-- [x] MCP Inspector testing
-
-### Phase 3: Testnet Proof
-
-- [ ] Fund test wallet
-- [ ] Execute real tBNB payment
-- [ ] Verify transaction on BSCScan
-- [ ] Record transaction hash
-- [ ] Create demo video
-
-### Phase 4: Ecosystem Integration
-
-- [ ] Improve developer documentation
-- [ ] Add reusable integration examples
-- [ ] Add additional automated tests
-- [ ] Explore Agent Launch / Fetch.ai agent integration
-
-## Security
-
-This project is currently intended for BSC Testnet experimentation.
-
-Never commit private keys, seed phrases, or other wallet credentials.
-
-The payment functionality should only be used with testnet funds during development.
+Contributions are welcome. Please include a clear description of the change, keep credentials out of commits, and add or update tests for changed behavior. Do not use real funds when testing.
 
 ## License
 
-MIT
+See the repository's [LICENSE](LICENSE) file.
